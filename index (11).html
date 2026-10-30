@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E-book Interaktif PPK Wilayah 12</title>
+<style>
+:root{--navy:#17365d;--blue:#245b91;--gold:#c69a45}*{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:#243247;font:15px Arial,sans-serif}
+header{background:var(--navy);color:white;padding:16px 22px}header h1{font-size:17px;margin:0}header p{font-size:12px;margin:5px 0 0}
+main{max-width:1200px;margin:18px auto;padding:0 14px}.toolbar{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;background:white;padding:12px;border:1px solid #dce2ea}
+button{border:0;border-radius:6px;padding:9px 13px;background:var(--blue);color:white;cursor:pointer;font-weight:bold}input,select{font:inherit}#pageNum{width:58px;padding:8px;text-align:center;border:1px solid #ccd4df;border-radius:6px}
+#viewer{background:#dce2e9;border:1px solid #dce2e9;min-height:55vh;display:flex;justify-content:center;padding:18px;overflow:auto}#pageWrap{background:white;box-shadow:0 4px 18px #0002}canvas{display:block;max-width:100%;height:auto}
+#uploadPanel{display:none;background:white;border:1px solid #dce2ea;border-top:4px solid var(--gold);padding:20px}#uploadPanel.active{display:block}h2{color:var(--navy);font-size:20px;margin:0 0 6px}.hint,.notice{font-size:13px;color:#657287;line-height:1.5}
+.grid,.uploads{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field{display:flex;flex-direction:column;gap:6px}.field label,.upload-item label{font-size:13px;font-weight:bold}.field input,.field select{padding:10px;border:1px solid #cbd4df;border-radius:6px;width:100%}
+.uploads{margin-top:16px}.upload-item{border:1px solid #e0e5ec;border-radius:8px;padding:12px}.upload-item label{display:block;margin-bottom:8px}.upload-item input{width:100%;font-size:12px}.actions{display:flex;gap:10px;align-items:center;margin-top:18px;flex-wrap:wrap}
+footer{text-align:center;color:#718096;font-size:12px;padding:18px}@media(max-width:700px){.grid,.uploads{grid-template-columns:1fr}#viewer{padding:6px}}
+</style></head>
+<body><header><h1>PEDOMAN MONITORING SURAT PERTANGGUNGJAWABAN</h1><p>SEKOLAH RAKYAT • TIM PPK WILAYAH 12</p></header>
+<main><div class="toolbar"><button id="prev">‹ Sebelumnya</button><span>Halaman</span><input id="pageNum" type="number" min="1" value="1"><span id="pageStatus">/ 31</span><button id="next">Berikutnya ›</button><button id="zoomOut">−</button><button id="zoomIn">+</button></div>
+<div id="viewer"><div id="pageWrap"><canvas id="pdfCanvas"></canvas></div></div>
+<section id="uploadPanel"><h2>Formulir Pengumpulan Dokumen SPJ</h2><p class="hint">Formulir ditampilkan pada halaman 13. Lengkapi identitas dan unggah dokumen sesuai kategori perjalanan dinas.</p>
+<div class="grid"><div class="field"><label>Nama Sekolah Rakyat</label><input id="school" placeholder="Nama Sekolah Rakyat" required></div><div class="field"><label>Nama Pelaksana / Penanggung Jawab</label><input id="person" placeholder="Nama lengkap" required></div><div class="field"><label>Nomor Surat Tugas</label><input id="assignment" placeholder="Nomor surat tugas"></div><div class="field"><label>Tanggal Perjalanan Dinas</label><input id="date" type="date"></div><div class="field"><label>Kategori Perjalanan Dinas</label><select id="tripType"><option value="luar">Perjalanan Dinas Luar Kota</option><option value="dalam">Perjalanan Dinas Dalam Kota</option></select></div></div>
+<div id="uploadList" class="uploads"></div><div class="actions"><button id="sendBtn">Kirim Dokumen</button><span id="formMessage" class="notice">Pengiriman diaktifkan setelah alamat Google Apps Script dihubungkan.</span></div>
+<p class="notice">Jangan unggah dokumen berisi data sensitif sebelum pengaturan akses dan penyimpanan Google Drive selesai dikonfigurasi.</p></section></main><footer>Tim PPK Wilayah 12 • 2026</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+/* Nanti diisi: tautan PDF Drive dan URL Web App Apps Script. */
+const PDF_URL="GANTI_DENGAN_TAUTAN_PDF_GOOGLE_DRIVE";
+const APPS_SCRIPT_URL="GANTI_DENGAN_URL_WEB_APP_APPS_SCRIPT";
+const pdfjsLib=window['pdfjs-dist/build/pdf'];pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+let pdfDoc=null,currentPage=1,scale=1.25;const canvas=document.getElementById('pdfCanvas'),ctx=canvas.getContext('2d'),pageInput=document.getElementById('pageNum'),status=document.getElementById('pageStatus');
+function msg(t){document.getElementById('formMessage').textContent=t}
+async function loadPdf(){if(PDF_URL.startsWith('GANTI_')){document.getElementById('viewer').innerHTML='<div style="max-width:650px;background:white;padding:28px;border-radius:10px;line-height:1.6"><h2>E-book siap dikonfigurasi</h2><p>Kerangka website sudah tersedia. PDF asli 31 halaman akan dihubungkan dari Google Drive pada tahap berikutnya.</p><p>Formulir interaktif ditempatkan pada halaman 13.</p></div>';document.getElementById('uploadPanel').classList.add('active');return}
+try{pdfDoc=await pdfjsLib.getDocument(PDF_URL).promise;status.textContent='/ '+pdfDoc.numPages;renderPage(1)}catch(e){document.getElementById('viewer').textContent='PDF belum dapat dimuat. Periksa tautan dan izin Google Drive.'}}
+async function renderPage(n){if(!pdfDoc)return;currentPage=Math.max(1,Math.min(pdfDoc.numPages,n));pageInput.value=currentPage;let p=await pdfDoc.getPage(currentPage),v=p.getViewport({scale});canvas.width=v.width;canvas.height=v.height;await p.render({canvasContext:ctx,viewport:v}).promise;document.getElementById('uploadPanel').classList.toggle('active',currentPage===13);document.getElementById('prev').disabled=currentPage===1;document.getElementById('next').disabled=currentPage===pdfDoc.numPages}
+document.getElementById('prev').onclick=()=>renderPage(currentPage-1);document.getElementById('next').onclick=()=>renderPage(currentPage+1);pageInput.onchange=()=>renderPage(+pageInput.value||1);document.getElementById('zoomIn').onclick=()=>{scale=Math.min(2.5,scale+.15);renderPage(currentPage)};document.getElementById('zoomOut').onclick=()=>{scale=Math.max(.6,scale-.15);renderPage(currentPage)};
+const docs={luar:['Surat Tugas','Laporan','Dokumentasi','SPJ perjalanan dinas luar kota','SPPD','Nominatif'],dalam:['Tanda terima','Laporan','Foto geotagging','Surat Tugas dan Surat Undangan']};
+function buildUploads(){let t=document.getElementById('tripType').value,list=document.getElementById('uploadList');list.innerHTML='';docs[t].forEach((name,i)=>{let d=document.createElement('div');d.className='upload-item';let l=document.createElement('label');l.textContent=name;let f=document.createElement('input');f.type='file';f.accept='.pdf,.jpg,.jpeg,.png';f.id='doc'+i;l.htmlFor=f.id;d.append(l,f);list.append(d)})}
+document.getElementById('tripType').onchange=buildUploads;buildUploads();document.getElementById('sendBtn').onclick=()=>{if(!school.value.trim()||!person.value.trim()){msg('Nama Sekolah Rakyat dan penanggung jawab wajib diisi.');return}if(APPS_SCRIPT_URL.startsWith('GANTI_')){msg('Formulir belum terhubung. Kita akan mengaktifkan pengiriman setelah backend Apps Script dan folder Drive disiapkan.');return}msg('Koneksi backend perlu diaktifkan melalui konfigurasi Apps Script.')};loadPdf();
+</script></body></html>
