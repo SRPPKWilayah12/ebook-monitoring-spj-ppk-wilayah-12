@@ -1,70 +1,81 @@
 <!doctype html>
 <html lang="id">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pedoman Monitoring SPJ Sekolah Rakyat – Tim PPK Wilayah 12</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Pedoman Monitoring SPJ – Tim PPK Wilayah 12</title>
 <style>
-:root{--navy:#17365d;--blue:#245b91;--gold:#c69a45}
-*{box-sizing:border-box}body{margin:0;background:#eef1f5;color:#243247;font:14px Arial,sans-serif}
-header{background:var(--navy);color:#fff;padding:13px 18px}header h1{font-size:16px;margin:0}header p{font-size:11px;margin:4px 0 0;letter-spacing:.4px}
-main{max-width:1100px;margin:14px auto;padding:0 10px}.toolbar{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;background:#fff;padding:10px;border:1px solid #dce2ea;border-radius:8px;margin-bottom:10px}
-button{border:0;border-radius:6px;padding:8px 12px;background:var(--blue);color:#fff;cursor:pointer;font-weight:bold}button:disabled{opacity:.45;cursor:not-allowed}#pageNum{width:56px;padding:7px;text-align:center;border:1px solid #ccd4df;border-radius:6px}
-#viewer{background:#dce2e9;border:1px solid #dce2e9;display:flex;justify-content:center;padding:12px;overflow:auto;border-radius:8px}
-#pageWrap{position:relative;background:#fff;box-shadow:0 4px 18px #0002;line-height:0;max-width:100%}#pdfCanvas{display:block;max-width:100%;height:auto}
-/* Area formulir menggantikan mockup pada halaman PDF ke-13 (nomor cetak 12). */
+:root{color-scheme:dark;--control-bg:rgba(20,32,49,.72);--control-border:rgba(255,255,255,.18)}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#20242a;font-family:Arial,sans-serif}
+#viewer{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#20242a;padding:10px}
+#pageWrap{position:relative;flex:none;background:#fff;line-height:0;box-shadow:0 8px 36px rgba(0,0,0,.32)}
+#pdfCanvas{display:block;width:100%;height:100%}
 #formOverlay{display:none;position:absolute;left:4.4%;top:28.7%;width:91.2%;height:67.5%;border:0;background:transparent;z-index:2}
-#formOverlay.active{display:block}#formFrame{width:100%;height:100%;border:0;background:transparent}
-#loadMessage{max-width:700px;background:#fff;padding:24px;border-radius:8px;line-height:1.55}
-footer{text-align:center;color:#718096;font-size:11px;padding:14px}
-@media(max-width:650px){#viewer{padding:4px}.toolbar{gap:5px}.toolbar button{padding:7px 9px;font-size:12px}header h1{font-size:14px}}
+#formOverlay.active{display:block}
+#formFrame{display:block;width:100%;height:100%;border:0;background:transparent}
+#controls{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:7px;padding:7px 9px;border:1px solid var(--control-border);border-radius:12px;background:var(--control-bg);backdrop-filter:blur(10px);z-index:5;opacity:.22;transition:opacity .18s ease}
+#controls:hover,#controls:focus-within{opacity:1}
+.control{width:36px;height:34px;display:grid;place-items:center;border:1px solid transparent;border-radius:8px;background:transparent;color:#fff;font-size:20px;line-height:1;cursor:pointer}
+.control:hover{background:rgba(255,255,255,.14)}
+.control:disabled{opacity:.35;cursor:default}
+#pageNum{width:42px;height:30px;padding:3px;text-align:center;border:1px solid var(--control-border);border-radius:6px;background:rgba(255,255,255,.12);color:#fff;font:13px Arial,sans-serif;outline:none}
+#pageTotal{min-width:30px;color:#fff;font-size:12px;text-align:center}
+#loading{position:fixed;inset:0;display:grid;place-items:center;color:rgba(255,255,255,.65);font-size:12px;pointer-events:none}
+@media(max-width:600px){#viewer{padding:4px}#controls{bottom:8px;gap:3px;padding:5px 6px}.control{width:32px;height:32px}}
 </style>
 </head>
 <body>
-<header><h1>PEDOMAN MONITORING SURAT PERTANGGUNGJAWABAN</h1><p>SEKOLAH RAKYAT • TIM PPK WILAYAH 12</p></header>
-<main>
-<div class="toolbar">
-<button id="prev" type="button">‹ Sebelumnya</button><span>Halaman</span><input id="pageNum" type="number" min="1" value="1"><span id="pageStatus">/ 31</span><button id="next" type="button">Berikutnya ›</button>
-<button id="zoomOut" type="button">−</button><button id="zoomIn" type="button">+</button>
+<div id="viewer"><div id="loading" aria-live="polite"> </div></div>
+<div id="controls" aria-label="Kontrol e-book">
+ <button class="control" id="prev" type="button" aria-label="Halaman sebelumnya" title="Halaman sebelumnya">‹</button>
+ <input id="pageNum" type="number" min="1" value="1" aria-label="Nomor halaman">
+ <span id="pageTotal">/31</span>
+ <button class="control" id="next" type="button" aria-label="Halaman berikutnya" title="Halaman berikutnya">›</button>
+ <button class="control" id="zoomOut" type="button" aria-label="Perkecil" title="Perkecil">−</button>
+ <button class="control" id="zoomIn" type="button" aria-label="Perbesar" title="Perbesar">+</button>
+ <button class="control" id="fullscreen" type="button" aria-label="Layar penuh" title="Layar penuh">⛶</button>
 </div>
-<div id="viewer"><div id="loadMessage"><strong>E-book sedang disiapkan.</strong><br>PDF asli 31 halaman akan ditampilkan di area ini. Formulir interaktif akan muncul langsung pada halaman 13 (nomor halaman tercetak 12).</div></div>
-</main><footer>Tim PPK Wilayah 12 • 2026</footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-// PDF disimpan di repositori GitHub yang sama dengan index.html.
-const PDF_URL = './Draft_Ebook_Rima_Lea_optimized.pdf';
-// Web App Apps Script yang menampilkan formulir tanpa password.
-const FORM_URL = 'https://script.google.com/macros/s/AKfycbxxH0INi4GhjBhajRp4xscS26XTfobPA5lSQGOSveVPA6C1HVgymUhTiVkGZdguax5R/exec';
-const pdfjsLib = window.pdfjsLib;
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-let pdfDoc=null,currentPage=1,scale=1.15;
-const viewer=document.getElementById('viewer'),pageInput=document.getElementById('pageNum'),pageStatus=document.getElementById('pageStatus');
+const PDF_URL='./Draft_Ebook_Rima_Lea_optimized.pdf';
+const FORM_URL='https://script.google.com/macros/s/AKfycbxxH0INi4GhjBhajRp4xscS26XTfobPA5lSQGOSveVPA6C1HVgymUhTiVkGZdguax5R/exec';
+const pdfjsLib=window.pdfjsLib;
+if(pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+let pdfDoc=null,currentPage=1,zoom=1,renderTask=null;
+const viewer=document.getElementById('viewer'),pageInput=document.getElementById('pageNum'),pageTotal=document.getElementById('pageTotal');
+function fitScale(page){const base=page.getViewport({scale:1});const availableW=viewer.clientWidth-20;const availableH=viewer.clientHeight-20;return Math.min(availableW/base.width,availableH/base.height)*zoom;}
 async function loadPdf(){
-
  try{
-  if(!pdfjsLib) throw new Error('Pustaka PDF.js tidak berhasil dimuat.');
+  if(!pdfjsLib)throw new Error('PDF.js tidak tersedia');
   pdfDoc=await pdfjsLib.getDocument({url:PDF_URL}).promise;
-  pageStatus.textContent='/ '+pdfDoc.numPages;
-  renderPage(1);
- }catch(err){
-  console.error(err);
-  viewer.innerHTML='<div id="loadMessage"><strong>PDF belum dapat dimuat.</strong><br>Pastikan file <b>Draft_Ebook_Rima_Lea_optimized.pdf</b> sudah diunggah ke folder utama (root) repositori GitHub yang sama dengan index.html. Periksa juga ejaan nama file dan tunggu proses GitHub Pages selesai.</div>';
- }
+  pageTotal.textContent='/'+pdfDoc.numPages;pageInput.max=pdfDoc.numPages;
+  document.getElementById('loading').remove();await renderPage(1);
+ }catch(err){console.error(err);document.getElementById('loading').textContent='';alert('PDF belum dapat dimuat. Periksa file PDF di repositori GitHub.');}
 }
 async function renderPage(n){
- if(!pdfDoc)return;currentPage=Math.max(1,Math.min(pdfDoc.numPages,n));pageInput.value=currentPage;
- const page=await pdfDoc.getPage(currentPage),viewport=page.getViewport({scale});
+ if(!pdfDoc)return;
+ currentPage=Math.max(1,Math.min(pdfDoc.numPages,Number(n)||1));pageInput.value=currentPage;
+ const page=await pdfDoc.getPage(currentPage),scale=fitScale(page),viewport=page.getViewport({scale});
  const wrap=document.createElement('div');wrap.id='pageWrap';wrap.style.width=viewport.width+'px';wrap.style.height=viewport.height+'px';
- const canvas=document.createElement('canvas');canvas.id='pdfCanvas';canvas.width=viewport.width;canvas.height=viewport.height;canvas.style.width=viewport.width+'px';canvas.style.height=viewport.height+'px';wrap.appendChild(canvas);
+ const canvas=document.createElement('canvas');canvas.id='pdfCanvas';canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);canvas.style.width=viewport.width+'px';canvas.style.height=viewport.height+'px';wrap.appendChild(canvas);
  const overlay=document.createElement('div');overlay.id='formOverlay';
  if(currentPage===13){overlay.classList.add('active');const frame=document.createElement('iframe');frame.id='formFrame';frame.src=FORM_URL;frame.title='Formulir Pengumpulan Dokumen SPJ';frame.allow='clipboard-read; clipboard-write';overlay.appendChild(frame);}
  wrap.appendChild(overlay);viewer.replaceChildren(wrap);
- await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;
+ if(renderTask){try{renderTask.cancel()}catch(e){}}
+ renderTask=page.render({canvasContext:canvas.getContext('2d'),viewport});
+ try{await renderTask.promise}catch(e){if(e.name!=='RenderingCancelledException')throw e;}
  document.getElementById('prev').disabled=currentPage===1;document.getElementById('next').disabled=currentPage===pdfDoc.numPages;
 }
-document.getElementById('prev').onclick=()=>renderPage(currentPage-1);document.getElementById('next').onclick=()=>renderPage(currentPage+1);
-pageInput.onchange=()=>renderPage(Number(pageInput.value)||1);
-document.getElementById('zoomIn').onclick=()=>{scale=Math.min(2,scale+.1);renderPage(currentPage)};
-document.getElementById('zoomOut').onclick=()=>{scale=Math.max(.55,scale-.1);renderPage(currentPage)};
+document.getElementById('prev').onclick=()=>renderPage(currentPage-1);
+document.getElementById('next').onclick=()=>renderPage(currentPage+1);
+pageInput.onchange=()=>renderPage(pageInput.value);
+document.getElementById('zoomIn').onclick=()=>{zoom=Math.min(2.2,zoom+.15);renderPage(currentPage)};
+document.getElementById('zoomOut').onclick=()=>{zoom=Math.max(.65,zoom-.15);renderPage(currentPage)};
+document.getElementById('fullscreen').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()};
+document.addEventListener('keydown',e=>{if(e.target===pageInput)return;if(e.key==='ArrowRight'||e.key==='PageDown')renderPage(currentPage+1);if(e.key==='ArrowLeft'||e.key==='PageUp')renderPage(currentPage-1);if(e.key==='+'||e.key==='='){zoom=Math.min(2.2,zoom+.15);renderPage(currentPage)}if(e.key==='-'){zoom=Math.max(.65,zoom-.15);renderPage(currentPage)}});
+let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>renderPage(currentPage),150)});
 loadPdf();
 </script>
-</body></html>
+</body>
+</html>
