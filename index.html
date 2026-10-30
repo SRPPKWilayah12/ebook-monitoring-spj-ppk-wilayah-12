@@ -30,18 +30,25 @@ footer{text-align:center;color:#718096;font-size:11px;padding:14px}
 </main><footer>Tim PPK Wilayah 12 • 2026</footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-// Ganti dengan tautan unduhan PDF asli dari Google Drive setelah file diunggah dan aksesnya diatur.
+// PDF asli di Google Drive; file harus dapat dilihat oleh siapa pun yang memiliki tautan.
 const PDF_URL = 'https://drive.google.com/uc?export=download&id=1UlCMVNAUe3B1OgTrbQ4LMO7p8jzRuYj4';
 // Web App Apps Script yang menampilkan formulir tanpa password.
 const FORM_URL = 'https://script.google.com/macros/s/AKfycbxxH0INi4GhjBhajRp4xscS26XTfobPA5lSQGOSveVPA6C1HVgymUhTiVkGZdguax5R/exec';
-const pdfjsLib = window['pdfjs-dist/build/pdf'];
+const pdfjsLib = window.pdfjsLib;
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 let pdfDoc=null,currentPage=1,scale=1.15;
 const viewer=document.getElementById('viewer'),pageInput=document.getElementById('pageNum'),pageStatus=document.getElementById('pageStatus');
 async function loadPdf(){
 
- try{pdfDoc=await pdfjsLib.getDocument({url:PDF_URL}).promise;pageStatus.textContent='/ '+pdfDoc.numPages;renderPage(1)}
- catch(err){viewer.innerHTML='<div id="loadMessage"><strong>PDF belum dapat dimuat.</strong><br>Periksa tautan Google Drive dan izin akses file. Jika Google Drive menolak akses lintas situs, kita perlu menggunakan metode penyajian PDF alternatif.</div>';}
+ try{
+  if(!pdfjsLib) throw new Error('Pustaka PDF.js tidak berhasil dimuat.');
+  pdfDoc=await pdfjsLib.getDocument({url:PDF_URL}).promise;
+  pageStatus.textContent='/ '+pdfDoc.numPages;
+  renderPage(1);
+ }catch(err){
+  console.error(err);
+  viewer.innerHTML='<div id="loadMessage"><strong>PDF belum dapat dimuat.</strong><br>Pastikan akses Google Drive diatur ke Siapa saja yang memiliki link – Pelihat. Jika masih gagal, kemungkinan Google Drive membatasi akses lintas situs (CORS), sehingga PDF perlu disajikan dengan metode lain.</div>';
+ }
 }
 async function renderPage(n){
  if(!pdfDoc)return;currentPage=Math.max(1,Math.min(pdfDoc.numPages,n));pageInput.value=currentPage;
