@@ -30,8 +30,8 @@ footer{text-align:center;color:#718096;font-size:11px;padding:14px}
 </main><footer>Tim PPK Wilayah 12 • 2026</footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-// PDF asli di Google Drive; file harus dapat dilihat oleh siapa pun yang memiliki tautan.
-const PDF_URL = 'https://drive.google.com/uc?export=download&id=1UlCMVNAUe3B1OgTrbQ4LMO7p8jzRuYj4';
+// PDF disimpan di repositori GitHub yang sama dengan index.html.
+const PDF_URL = './Draft_Ebook_Rima_Lea_optimized.pdf';
 // Web App Apps Script yang menampilkan formulir tanpa password.
 const FORM_URL = 'https://script.google.com/macros/s/AKfycbxxH0INi4GhjBhajRp4xscS26XTfobPA5lSQGOSveVPA6C1HVgymUhTiVkGZdguax5R/exec';
 const pdfjsLib = window.pdfjsLib;
@@ -47,7 +47,7 @@ async function loadPdf(){
   renderPage(1);
  }catch(err){
   console.error(err);
-  viewer.innerHTML='<div id="loadMessage"><strong>PDF belum dapat dimuat.</strong><br>Pastikan akses Google Drive diatur ke Siapa saja yang memiliki link – Pelihat. Jika masih gagal, kemungkinan Google Drive membatasi akses lintas situs (CORS), sehingga PDF perlu disajikan dengan metode lain.</div>';
+  viewer.innerHTML='<div id="loadMessage"><strong>PDF belum dapat dimuat.</strong><br>Pastikan file <b>Draft_Ebook_Rima_Lea_optimized.pdf</b> sudah diunggah ke folder utama (root) repositori GitHub yang sama dengan index.html. Periksa juga ejaan nama file dan tunggu proses GitHub Pages selesai.</div>';
  }
 }
 async function renderPage(n){
