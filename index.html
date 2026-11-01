@@ -248,6 +248,29 @@ body{
   animation:pageTurnPrev .72s cubic-bezier(.2,.75,.25,1) both;
 }
 
+/* ================================
+   RESPONSIVE TOMBOL DOWNLOAD
+   ================================ */
+
+/* LAPTOP / LAYAR MENENGAH */
+@media (min-width: 601px) and (max-width: 1366px){
+
+  #downloadOverlay{
+    width:70%;
+    top:8%;
+    gap:10px;
+  }
+
+  .download-btn{
+    min-height:32px;
+    padding:7px 12px;
+    font-size:10px;
+    border-radius:6px;
+  }
+}
+
+
+/* MOBILE */
 @media(max-width:600px){
 
   #viewer{
@@ -272,23 +295,19 @@ body{
     height:85%;
   }
 
+  /* Tombol download pada halaman checklist */
   #downloadOverlay{
-    width:82%;
-    top:8%;
-    gap:7px;
+    width:88%;
+    top:7.5%;
+    gap:6px;
   }
 
   .download-btn{
-    min-height:34px;
-    padding:8px;
-    font-size:9px;
-  }
-}
-
-@media(prefers-reduced-motion:reduce){
-  #pageWrap.turn-next,
-  #pageWrap.turn-prev{
-    animation:none;
+    min-height:30px;
+    padding:6px 7px;
+    font-size:8px;
+    line-height:1.2;
+    border-radius:5px;
   }
 }
 </style>
