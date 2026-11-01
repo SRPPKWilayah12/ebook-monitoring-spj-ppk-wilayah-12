@@ -209,21 +209,16 @@ body{
     opacity:.35;
     transform:perspective(1400px) rotateY(-24deg) translateX(52px) scale(.985);
     filter:brightness(.72);
-    box-shadow:-18px 0 28px rgba(0,0,0,.24);
   }
-
   45%{
     opacity:.9;
     transform:perspective(1400px) rotateY(7deg) translateX(-8px) scale(.995);
     filter:brightness(1.08);
-    box-shadow:-8px 0 18px rgba(0,0,0,.16);
   }
-
   100%{
     opacity:1;
     transform:perspective(1400px) rotateY(0) translateX(0) scale(1);
     filter:brightness(1);
-    box-shadow:0 5px 24px #0005;
   }
 }
 
@@ -232,21 +227,16 @@ body{
     opacity:.35;
     transform:perspective(1400px) rotateY(24deg) translateX(-52px) scale(.985);
     filter:brightness(.72);
-    box-shadow:18px 0 28px rgba(0,0,0,.24);
   }
-
   45%{
     opacity:.9;
     transform:perspective(1400px) rotateY(-7deg) translateX(8px) scale(.995);
     filter:brightness(1.08);
-    box-shadow:8px 0 18px rgba(0,0,0,.16);
   }
-
   100%{
     opacity:1;
     transform:perspective(1400px) rotateY(0) translateX(0) scale(1);
     filter:brightness(1);
-    box-shadow:0 5px 24px #0005;
   }
 }
 
@@ -258,7 +248,6 @@ body{
   animation:pageTurnPrev .72s cubic-bezier(.2,.75,.25,1) both;
 }
 
-/* TAMPILAN MOBILE */
 @media(max-width:600px){
 
   #viewer{
@@ -291,7 +280,7 @@ body{
 
   .download-btn{
     min-height:34px;
-    padding:8px 8px;
+    padding:8px;
     font-size:9px;
   }
 }
@@ -314,37 +303,40 @@ body{
 <div id="loading">Membuka halaman…</div>
 
 <div id="toolbar" aria-label="Navigasi e-book">
-  <button id="prev" type="button" title="Halaman sebelumnya" aria-label="Halaman sebelumnya">‹</button>
-  <input id="pageNum" type="number" min="1" value="1" aria-label="Nomor halaman">
+  <button id="prev" type="button" title="Halaman sebelumnya">‹</button>
+  <input id="pageNum" type="number" min="1" value="1">
   <span id="pageStatus">/ 31</span>
-  <button id="next" type="button" title="Halaman berikutnya" aria-label="Halaman berikutnya">›</button>
-  <button id="zoomOut" type="button" title="Perkecil" aria-label="Perkecil">−</button>
-  <button id="zoomIn" type="button" title="Perbesar" aria-label="Perbesar">+</button>
-  <button id="fullscreen" type="button" title="Layar penuh" aria-label="Layar penuh">⛶</button>
+  <button id="next" type="button" title="Halaman berikutnya">›</button>
+  <button id="zoomOut" type="button" title="Perkecil">−</button>
+  <button id="zoomIn" type="button" title="Perbesar">+</button>
+  <button id="fullscreen" type="button" title="Layar penuh">⛶</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 <script>
 
+/* FILE EBOOK */
 const PDF_URL='./Draft_Ebook_Rima_Lea_optimized.pdf';
 
+/* FORM UPLOAD SPJ */
 const FORM_URL='https://script.google.com/macros/s/AKfycbxxH0INi4GhjBhajRp4xscS26XTfobPA5lSQGOSveVPA6C1HVgymUhTiVkGZdguax5R/exec';
 
-const CHECKLIST_FILE='./Format_Checklist.xlsx';
-const BUKTI_BERKAS_FILE='./Format_Bukti_Pengumpulan_Berkas.xlsx';
+/* FILE DOWNLOAD HALAMAN 18 */
+const CHECKLIST_FILE='./Format_Checklist.docx';
+const BUKTI_BERKAS_FILE='./Format_Bukti_Pengumpulan_berkas.docx';
 
 const pdfjsLib=window.pdfjsLib;
 
 pdfjsLib.GlobalWorkerOptions.workerSrc=
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-let pdfDoc=null,
-    currentPage=1,
-    zoom=1,
-    rendering=false,
-    pendingPage=null,
-    hasShownFirstPage=false;
+let pdfDoc=null;
+let currentPage=1;
+let zoom=1;
+let rendering=false;
+let pendingPage=null;
+let hasShownFirstPage=false;
 
 const viewer=document.getElementById('viewer');
 const pageInput=document.getElementById('pageNum');
@@ -389,9 +381,7 @@ async function renderPage(number,direction='next'){
   try{
 
     const page=await pdfDoc.getPage(currentPage);
-
     const scale=getScale(page);
-
     const viewport=page.getViewport({scale});
 
     const stage=document.createElement('div');
@@ -425,71 +415,46 @@ async function renderPage(number,direction='next'){
     wrap.appendChild(canvas);
 
 
-    /* ==============================
-       FORM UPLOAD PADA HALAMAN 13
-    ============================== */
-
+    /* FORM UPLOAD PADA HALAMAN 13 */
     if(currentPage===13){
 
       const overlay=document.createElement('div');
-
       overlay.id='formOverlay';
       overlay.className='active';
 
       const frame=document.createElement('iframe');
-
       frame.id='formFrame';
       frame.src=FORM_URL;
-
       frame.title='Formulir Pengumpulan Dokumen SPJ';
-
       frame.setAttribute('scrolling','no');
 
       overlay.appendChild(frame);
-
       wrap.appendChild(overlay);
     }
 
 
-    /* ==============================
-       TOMBOL DOWNLOAD HALAMAN 18
-    ============================== */
-
+    /* TOMBOL DOWNLOAD PADA HALAMAN 18 */
     if(currentPage===18){
 
       const downloadOverlay=document.createElement('div');
-
       downloadOverlay.id='downloadOverlay';
 
 
-      /* Tombol Format Checklist */
-
       const checklist=document.createElement('a');
-
       checklist.href=CHECKLIST_FILE;
-
-      checklist.download='Format_Checklist.xlsx';
-
+      checklist.download='Format_Checklist.docx';
       checklist.className='download-btn';
-
       checklist.textContent='↓ Download Format Checklist';
 
 
-      /* Tombol Format Bukti Pengumpulan Berkas */
-
       const bukti=document.createElement('a');
-
       bukti.href=BUKTI_BERKAS_FILE;
-
-      bukti.download='Format_Bukti_Pengumpulan_Berkas.xlsx';
-
+      bukti.download='Format_Bukti_Pengumpulan_berkas.docx';
       bukti.className='download-btn';
-
       bukti.textContent='↓ Download Format Bukti Pengumpulan Berkas';
 
 
       downloadOverlay.appendChild(checklist);
-
       downloadOverlay.appendChild(bukti);
 
       wrap.appendChild(downloadOverlay);
@@ -497,7 +462,6 @@ async function renderPage(number,direction='next'){
 
 
     stage.appendChild(wrap);
-
     viewer.replaceChildren(stage);
 
 
@@ -530,7 +494,6 @@ async function renderPage(number,direction='next'){
     document.getElementById('next').disabled=
       currentPage===pdfDoc.numPages;
 
-
     pageStatus.textContent='/ '+pdfDoc.numPages;
 
 
@@ -544,14 +507,11 @@ async function renderPage(number,direction='next'){
   }finally{
 
     loading.classList.remove('show');
-
     rendering=false;
-
 
     if(pendingPage){
 
       const next=pendingPage;
-
       pendingPage=null;
 
       renderPage(
@@ -579,29 +539,30 @@ async function loadPdf(){
   }catch(error){
 
     viewer.innerHTML=
-      '<div id="message"><strong>PDF belum dapat dimuat.</strong><br>Pastikan file Draft_Ebook_Rima_Lea_optimized.pdf berada satu folder dengan index.html di GitHub.</div>';
+      '<div id="message"><strong>PDF belum dapat dimuat.</strong><br>Pastikan file PDF berada satu folder dengan index.html.</div>';
 
     console.error(error);
   }
 }
 
 
-/* NAVIGASI */
+/* NAVIGASI HALAMAN */
 
-document.getElementById('prev').onclick=
-  ()=>renderPage(currentPage-1,'prev');
+document.getElementById('prev').onclick=()=>{
+  renderPage(currentPage-1,'prev');
+};
 
-document.getElementById('next').onclick=
-  ()=>renderPage(currentPage+1,'next');
-
+document.getElementById('next').onclick=()=>{
+  renderPage(currentPage+1,'next');
+};
 
 pageInput.onchange=()=>{
 
+  const target=Number(pageInput.value)||1;
+
   renderPage(
-    Number(pageInput.value)||1,
-    Number(pageInput.value)<currentPage
-      ?'prev'
-      :'next'
+    target,
+    target<currentPage?'prev':'next'
   );
 };
 
@@ -609,17 +570,12 @@ pageInput.onchange=()=>{
 /* ZOOM */
 
 document.getElementById('zoomIn').onclick=()=>{
-
   zoom=Math.min(1.8,zoom+.1);
-
   renderPage(currentPage,'next');
 };
 
-
 document.getElementById('zoomOut').onclick=()=>{
-
   zoom=Math.max(.55,zoom-.1);
-
   renderPage(currentPage,'next');
 };
 
@@ -629,11 +585,8 @@ document.getElementById('zoomOut').onclick=()=>{
 document.getElementById('fullscreen').onclick=()=>{
 
   if(!document.fullscreenElement){
-
     document.documentElement.requestFullscreen?.();
-
   }else{
-
     document.exitFullscreen?.();
   }
 };
@@ -644,7 +597,6 @@ document.getElementById('fullscreen').onclick=()=>{
 window.addEventListener('resize',()=>{
 
   if(pdfDoc){
-
     renderPage(currentPage,'next');
   }
 });
@@ -657,19 +609,11 @@ document.addEventListener('keydown',event=>{
   if(event.target===pageInput)return;
 
   if(event.key==='ArrowRight'){
-
-    renderPage(
-      currentPage+1,
-      'next'
-    );
+    renderPage(currentPage+1,'next');
   }
 
   if(event.key==='ArrowLeft'){
-
-    renderPage(
-      currentPage-1,
-      'prev'
-    );
+    renderPage(currentPage-1,'prev');
   }
 });
 
@@ -678,25 +622,19 @@ document.addEventListener('keydown',event=>{
 
 let touchStartX=0;
 
-
 viewer.addEventListener(
   'touchstart',
   e=>{
-
-    touchStartX=
-      e.changedTouches[0].screenX;
-
+    touchStartX=e.changedTouches[0].screenX;
   },
   {passive:true}
 );
-
 
 viewer.addEventListener(
   'touchend',
   e=>{
 
-    const dx=
-      e.changedTouches[0].screenX-touchStartX;
+    const dx=e.changedTouches[0].screenX-touchStartX;
 
     if(Math.abs(dx)>65){
 
@@ -705,13 +643,12 @@ viewer.addEventListener(
         dx<0?'next':'prev'
       );
     }
-
   },
   {passive:true}
 );
 
 
-/* MULAI MEMUAT E-BOOK */
+/* MEMUAT EBOOK */
 
 loadPdf();
 
